@@ -4,9 +4,19 @@ CREATE TABLE Member (
     password      VARCHAR2(255),
     email         VARCHAR2(100) UNIQUE NOT NULL,
     member_type   CHAR(1) NOT NULL CHECK (member_type IN ('I', 'B')), --일반 I 비즈니스 B
-    status		  CHAR(1) DEFAULT 'A' CHECK (status IN ('A', 'D', 'S')) -- 활성화 A 삭제대기 D 계정정지 S
+    status		  CHAR(1) DEFAULT 'A' CHECK (status IN ('A', 'D', 'S')), -- 활성화 A 삭제대기 D 계정정지 S
+    reg_date DATE default sysdate
 );
-alter table Member add reg_date date default sysdate;
+select * from Member;
+insert into Member values ('test','a','a@a.com',trim('I'),trim('A'),sysdate);
+alter table Member rename column member_type to memberType;
+alter table Member rename column reg_date to regDate;
+delete member;
+
+SELECT constraint_name, constraint_type,table_name,status search_condition
+FROM user_constraints;
+WHERE table_name = 'MEMBER'
+AND constraint_type = 'C';
 
 -- 개인정보 테이블 (PII)
 CREATE TABLE MemberPrivate (
@@ -18,6 +28,9 @@ CREATE TABLE MemberPrivate (
     member_pic       VARCHAR2(255),
     FOREIGN KEY (id) REFERENCES Member(id) ON DELETE CASCADE
 );
+select * from MemberPrivate;
+alter table MemberPrivate rename column address_detail to addressDetail;
+alter table MemberPrivate rename column member_pic to memberPic;
 
 -- 배송지 주소
 CREATE TABLE DeliveryAddress (
@@ -31,6 +44,12 @@ CREATE TABLE DeliveryAddress (
     FOREIGN KEY (member_id) REFERENCES Member(id) ON DELETE CASCADE
 );
 
+select * from DeliveryAddress;
+alter table DeliveryAddress rename column address_id to addressId;
+alter table DeliveryAddress rename column member_id to memberId;
+alter table DeliveryAddress rename column is_default to isDefault;
+alter table DeliveryAddress rename column created_at to createdAt;
+
 -- BusinessMember (사업자 전용 정보)
 CREATE TABLE BusinessMember (
     id            VARCHAR2(20) PRIMARY KEY,
@@ -38,6 +57,11 @@ CREATE TABLE BusinessMember (
     company_name  VARCHAR2(100),
     CONSTRAINT fk_bizmember FOREIGN KEY (id) REFERENCES Member(id) ON DELETE CASCADE
 );
+
+select * from BusinessMember;
+alter table BusinessMember rename column biz_number to bizNumber;
+alter table BusinessMember rename column company_name to companyName;
+
 
 -- 사업자정보 테이블 (PII)
 CREATE TABLE BusinessMemberPrivate (
@@ -48,13 +72,23 @@ CREATE TABLE BusinessMemberPrivate (
     FOREIGN KEY (id) REFERENCES BusinessMember(id) ON DELETE CASCADE
 );
 
-
+select * from BusinessMemberPrivate;
+alter table BusinessMemberPrivate rename column company_address to companyAddress;
+alter table BusinessMemberPrivate rename column company_tel to companyTel;
+alter table BusinessMemberPrivate rename column company_email to companyEmail;
 
 -- 관리자 역할
 CREATE TABLE AdminRole (
     role_name     VARCHAR2(20) PRIMARY KEY,     -- 예: super, general, cs
     description   VARCHAR2(100)
 );
+select * from AdminRole;
+alter table AdminRole rename column role_name to roleName;
+insert into AdminRole values('owner','총관리');
+insert into AdminRole values('admin','컨텐츠,사용자 계정 관리, 사이트 운영 관련');
+insert into AdminRole values('editor','공지사항 작성/수정, 게시물 검토');
+
+
 
 -- 관리자 계정
 CREATE TABLE Admin (
@@ -68,11 +102,9 @@ CREATE TABLE Admin (
     FOREIGN KEY (role) REFERENCES AdminRole(role_name) ON DELETE SET NULL
 );
 
-
-
-
-
-
+select * from Admin;
+alter table Admin rename column admin_id to adminId;
+alter table Admin rename column created_at to createdAt;
 
 
 
